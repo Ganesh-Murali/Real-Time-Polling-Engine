@@ -8,14 +8,7 @@ Built using React, Node.js, MongoDB, Express, and Socket.IO for real-time commun
 
 ## 🚀 Live Demo
 
-### Frontend
-
-
-### Backend API
-
-
-### GitHub Repository
-
+https://real-time-polling-engine-navy.vercel.app/
 
 ---
 
