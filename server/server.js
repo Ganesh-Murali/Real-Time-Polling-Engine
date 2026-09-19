@@ -1,0 +1,74 @@
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import http from "http";
+import { Server } from "socket.io";
+
+import connectDB from "./db.js";
+
+import pollRoutes from "./routes/pollRoutes.js";
+
+dotenv.config();
+
+const app = express();
+
+app.use(
+  cors({
+    origin: [
+      process.env.CLIENT_URL,
+      "http://localhost:5173",
+    ],
+    credentials: true,
+  })
+);
+
+app.use(express.json());
+
+app.use("/api/polls", pollRoutes);
+
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+  },
+});
+
+export { io };
+
+io.on("connection", (socket) => {
+  console.log("User Connected:", socket.id);
+
+  socket.on("join-poll", (pollId) => {
+    socket.join(pollId);
+
+    console.log(
+      `Socket ${socket.id} joined poll room ${pollId}`
+    );
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User Disconnected");
+  });
+});
+
+app.get("/", (req, res) => {
+  res.send("Polling API Running");
+});
+
+const PORT = process.env.PORT || 5000;
+
+const startServer = async () => {
+  try {
+    await connectDB();
+
+    server.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error("Failed to start server:", error);
+    process.exit(1);
+  }
+};
+
+startServer();
